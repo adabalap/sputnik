@@ -19,4 +19,4 @@ RUN mkdir -p /usr/local/bin && \
 EXPOSE 22 7681
 
 # Create a new user and start SSH server and ttyd
-CMD ["/bin/sh", "-c", "adduser -D $USERNAME && echo \"$USERNAME:$PASSWORD\" | chpasswd && /usr/sbin/sshd && ttyd -p 7681 login && /usr/local/bin/setup.sh"]
+CMD ["/bin/sh", "-c", "adduser -D $USERNAME && echo \"$USERNAME:$PASSWORD\" | chpasswd && /usr/sbin/sshd && ttyd --writable -p 7681 login && /usr/local/bin/setup.sh"]
