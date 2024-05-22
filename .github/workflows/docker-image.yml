@@ -16,7 +16,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/sputnik-bastion
+          DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/vulcan
           VERSION=$(date +%d%m%Y).$(echo $GITHUB_RUN_NUMBER)
           TAGS="${DOCKER_IMAGE}:vulcan-${VERSION}"
           echo ::set-output name=tags::${TAGS}
