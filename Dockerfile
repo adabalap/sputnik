@@ -13,6 +13,9 @@ RUN useradd -m guest && \
 # Configure SSH for the guest user
 RUN echo 'PermitRootLogin no\nPasswordAuthentication yes\nAllowUsers guest' > /etc/ssh/sshd_config
 
+# Create the privilege separation directory
+RUN mkdir /run/sshd
+
 # Configure Shell In A Box
 RUN echo "SHELLINABOX_PORT=4200\nSHELLINABOX_ARGS='--no-beep --disable-ssl'" > /etc/default/shellinabox
 
