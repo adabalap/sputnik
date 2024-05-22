@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vulcan
+  namespace: vulcan
+  labels:
+    app: vulcan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vulcan
+  template:
+    metadata:
+      labels:
+        app: vulcan
+    spec:
+      hostname: vulcan
+      containers:
+        - name: vulcan
+          image: adabalap/vulcan:vulcan-22052024.7
+          ports:
+            - containerPort: 22
+            - containerPort: 7681
+          env:
+            - name: TZ
+              value: "Asia/Kolkata"
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: vulcan-credentials
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vulcan-credentials
+                  key: password
