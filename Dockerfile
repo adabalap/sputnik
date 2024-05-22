@@ -1,26 +1,22 @@
-# Use an official Ubuntu runtime as a parent image
-FROM ubuntu:latest
+FROM alpine:latest
 
-# Install OpenSSH and Shell In A Box
-RUN apt-get update && apt-get install -y openssh-server shellinabox
+# Install necessary packages
+RUN apk update && \
+    apk add --no-cache bash openssh curl shadow ttyd && \
+    rm -rf /var/cache/apk/*
 
-# Create the guest user
-RUN useradd -m guest && \
-    echo "guest:guest" | chpasswd && \
-    mkdir /home/guest/.ssh && \
-    chmod 700 /home/guest/.ssh
+# Set up SSH server
+RUN sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    /usr/bin/ssh-keygen -A
 
-# Configure SSH for the guest user
-RUN echo 'PermitRootLogin no\nPasswordAuthentication yes\nAllowUsers guest' > /etc/ssh/sshd_config
+# Create a script to create user's home directory and set permissions
+RUN mkdir -p /usr/local/bin && \
+    printf "#!/bin/bash\nif [ ! -d \"\$HOME\" ]; then mkdir \"\$HOME\"; fi\nchown -R \$USERNAME:\$(id -g \$USERNAME) \"\$HOME\"\nexec chroot /home/$USERNAME\n" > /usr/local/bin/setup.sh && \
+    chmod +x /usr/local/bin/setup.sh
 
-# Create the privilege separation directory
-RUN mkdir /run/sshd
+# Expose ports
+EXPOSE 22 7681
 
-# Configure Shell In A Box
-RUN echo "SHELLINABOX_PORT=4200\nSHELLINABOX_ARGS='--no-beep --disable-ssl'" > /etc/default/shellinabox
-
-# Expose the SSH and Shell In A Box ports
-EXPOSE 22 4200
-
-# Start the SSH server and Shell In A Box
-CMD service shellinabox start && /usr/sbin/sshd -D
+# Create a new user and start SSH server and ttyd
+CMD ["/bin/sh", "-c", "adduser -D $USERNAME && echo \"$USERNAME:$PASSWORD\" | chpasswd && /usr/sbin/sshd && ttyd -p 7681 login && /usr/local/bin/setup.sh"]
