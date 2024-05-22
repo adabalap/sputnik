@@ -2,9 +2,10 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - '*'
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -17,8 +18,8 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/vulcan
-          VERSION=$(date +%d%m%Y).$(echo $GITHUB_RUN_NUMBER)
-          TAGS="${DOCKER_IMAGE}:vulcan-${VERSION}"
+          VERSION=$(echo ${GITHUB_REF#refs/*/} | sed 's/\//-/g')
+          TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
 
