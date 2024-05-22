@@ -17,8 +17,8 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/sputnik-bastion
-          VERSION=${GITHUB_REF#refs/tags/v}
-          TAGS="${DOCKER_IMAGE}:${VERSION}"
+          VERSION=$(date +%d%m%Y).$(echo $GITHUB_RUN_NUMBER)
+          TAGS="${DOCKER_IMAGE}:vulcan-${VERSION}"
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
 
@@ -45,4 +45,4 @@ jobs:
           file: ./Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sputnik-bastion:${{ github.ref_name }}
+          tags: ${{ steps.prep.outputs.tags }}
